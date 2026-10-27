@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mq-portal
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./data/mqportal;MODE=MySQL;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+  h2:
+    console:
+      enabled: false
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+rocketmq:
+  namesrv-addr: localhost:9876
+  timeout-millis: 3000
+
+metrics:
+  collect-interval-ms: 60000
+  collect-initial-delay-ms: 30000
+
+jwt:
+  secret: "mq-portal-demo-secret-key-change-me-please-0123456789abcdef"
+  expiration-ms: 86400000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
