@@ -1,0 +1,30 @@
+services:
+  namesrv:
+    image: apache/rocketmq:5.1.4
+    container_name: mq-portal-namesrv
+    ports:
+      - "9876:9876"
+    command: sh mqnamesrv
+    networks:
+      - mq-portal-net
+
+  broker:
+    image: apache/rocketmq:5.1.4
+    container_name: mq-portal-broker
+    depends_on:
+      - namesrv
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+      - "10912:10912"
+    environment:
+      NAMESRV_ADDR: "namesrv:9876"
+    command: sh mqbroker -n namesrv:9876 -c /home/rocketmq/rocketmq-5.1.4/conf/broker.conf
+    volumes:
+      - ./docker/broker.conf:/home/rocketmq/rocketmq-5.1.4/conf/broker.conf
+    networks:
+      - mq-portal-net
+
+networks:
+  mq-portal-net:
+    driver: bridge
