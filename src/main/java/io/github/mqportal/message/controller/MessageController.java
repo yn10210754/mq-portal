@@ -6,6 +6,9 @@ import io.github.mqportal.message.dto.ConsumeDirectlyResultVO;
 import io.github.mqportal.message.dto.MessageVO;
 import io.github.mqportal.message.dto.ResendDeadLetterRequest;
 import io.github.mqportal.message.dto.ResetOffsetRequest;
+import io.github.mqportal.message.dto.SendMessageRequest;
+import io.github.mqportal.message.dto.SendResultVO;
+import io.github.mqportal.message.service.MessageSendService;
 import io.github.mqportal.message.service.MessageService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,8 +29,17 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    public MessageController(MessageService messageService) {
+    private final MessageSendService messageSendService;
+
+    public MessageController(MessageService messageService, MessageSendService messageSendService) {
         this.messageService = messageService;
+        this.messageSendService = messageSendService;
+    }
+
+    @PostMapping("/send")
+    @AuditLog(module = "message", action = "send")
+    public Result<List<SendResultVO>> send(@Valid @RequestBody SendMessageRequest request) {
+        return Result.ok(messageSendService.send(request));
     }
 
     @GetMapping("/query")
