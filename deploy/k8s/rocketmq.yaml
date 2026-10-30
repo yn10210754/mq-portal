@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rocketmq
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broker-conf
+  namespace: rocketmq
+data:
+  broker.conf: |
+    brokerClusterName=DefaultCluster
+    brokerName=broker-a
+    brokerId=0
+    deleteWhen=04
+    fileReservedTime=48
+    brokerRole=ASYNC_MASTER
+    flushDiskType=ASYNC_FLUSH
+    listenPort=10911
+    namesrvAddr=127.0.0.1:9876
+    autoCreateTopicEnable=true
+    autoCreateSubscriptionGroup=true
+    brokerIP1=127.0.0.1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nameserver
+  namespace: rocketmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nameserver
+  template:
+    metadata:
+      labels:
+        app: nameserver
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: nameserver
+          image: apache/rocketmq:5.1.4
+          command: ["sh", "mqnamesrv"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broker
+  namespace: rocketmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broker
+  template:
+    metadata:
+      labels:
+        app: broker
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: broker
+          image: apache/rocketmq:5.1.4
+          command: ["sh", "mqbroker", "-c", "/etc/rocketmq/broker.conf"]
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/rocketmq
+      volumes:
+        - name: conf
+          configMap:
+            name: broker-conf

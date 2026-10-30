@@ -1,0 +1,14 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: rocketmq-lab
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 9876   # nameserver
+        hostPort: 9876
+      - containerPort: 10911  # broker remoting
+        hostPort: 10911
+      - containerPort: 10909  # broker VIP channel
+        hostPort: 10909
+      - containerPort: 10912  # broker HA
+        hostPort: 10912

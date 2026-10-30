@@ -67,14 +67,34 @@ flowchart LR
 
 ## 快速开始
 
-### 1. 启动 RocketMQ 5.1.4（Docker Compose）
+### 1. 启动 RocketMQ 5.1.4
+
+两种方式任选其一（应用都连 `localhost:9876`，无需改配置）：
+
+**方式 A：Docker Compose（最简单）**
 
 ```bash
 cd mq-portal
 docker compose up -d
 ```
 
-等待 broker 就绪后，`NameServer` 监听 `localhost:9876`，`Broker` 监听 `localhost:10911`。
+> 注意：`docker/broker.conf` 里 `brokerIP1` 需要填**宿主机的局域网 IP**（容器内的主机名在宿主机上无法解析），换网络环境后要同步修改并 `docker compose restart broker`。
+
+**方式 B：Kubernetes（kind + kubectl）**
+
+```bash
+# 创建带端口映射的 kind 集群（清单见 deploy/kind/kind-rocketmq.yaml）
+kind create cluster --config deploy/kind/kind-rocketmq.yaml
+
+# 把镜像加载进 kind 节点（本机需先 docker pull apache/rocketmq:5.1.4）
+kind load docker-image apache/rocketmq:5.1.4 --name rocketmq-lab
+
+# 部署 nameserver + broker（hostNetwork 方式，清单见 deploy/k8s/rocketmq.yaml）
+kubectl apply -f deploy/k8s/rocketmq.yaml
+kubectl -n rocketmq get pods
+```
+
+两种方式就绪后，`NameServer` 监听 `localhost:9876`，`Broker` 监听 `localhost:10911`。
 
 ### 2. 构建并运行
 
